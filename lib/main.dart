@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:medorant/pages/first_screen.dart';
-import 'package:medorant/pages/home.dart';
 import 'package:medorant/pages/login_screen.dart';
 import 'package:medorant/utils/routes.dart';
 
