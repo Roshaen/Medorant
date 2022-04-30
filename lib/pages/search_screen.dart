@@ -1,6 +1,7 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, duplicate_ignore
 import 'package:flutter/material.dart';
 import 'package:medorant/utils/themes.dart';
+import 'package:medorant/widgets/drawer.dart';
 
 import '../widgets/search_item.dart';
 
@@ -326,28 +327,22 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text(
-            'Recent Search',
-            style: TextStyle(
-              color: AppTheme.lightTheme(context).primaryColor,
-              fontSize: 28,
-            ),
-          ),
-          elevation: 0.0,
-          backgroundColor: Colors.transparent,
+      appBar: AppBar(
+        title: Text('Recent Search'),
+      ),
+      drawer: AppDrawer(),
+      body: SingleChildScrollView(
+        child: Column(
+          children: medicines
+              .map(
+                (data) => SearchItem(
+                  medicineName: data['medicine_name'],
+                  price: data['mrp'],
+                ),
+              )
+              .toList(),
         ),
-        body: SingleChildScrollView(
-          child: Column(
-            children: medicines
-                .map(
-                  (data) => SearchItem(
-                    medicineName: data['medicine_name'],
-                    price: data['mrp'],
-                  ),
-                )
-                .toList(),
-          ),
-        ));
+      ),
+    );
   }
 }

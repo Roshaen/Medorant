@@ -1,14 +1,20 @@
 import 'package:flutter/material.dart';
 import 'package:medorant/pages/home.dart';
-
+import 'package:http/http.dart' as http;
 import '../api/google_signin_api.dart';
 import 'login_personal_data.dart';
+import 'dart:convert';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   static const routeName = '/welcome-screen';
 
   const LoginScreen({Key? key}) : super(key: key);
 
+  @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     var _isLoggedIn = false;
@@ -16,12 +22,31 @@ class LoginScreen extends StatelessWidget {
     // ignore: non_constant_identifier_names
     Future SignIn() async {
       final user = await GoogleSignInApi.login();
-      List<String> data = [
-        user!.id,
-        user.email,
-        user.displayName.toString(),
-        user.photoUrl.toString()
-      ];
+
+      Future<http.Response> sendData(String id) {
+        return http.post(
+          Uri.parse(
+              'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(<String, String>{
+            "user_id": user!.id.toString(),
+            "name": user.displayName.toString(),
+            "email": user.email,
+            "image": user.photoUrl.toString()
+          }),
+        );
+      }
+
+      //getData
+
+      getDetails() async {
+        return await http.get(Uri.parse(
+            'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/114922385253239400010'));
+        // var details = jsonDecode(data.body.substring(1, data.body.length - 1));
+      }
+
       if (user == null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("Sign In Failed")));
@@ -30,6 +55,8 @@ class LoginScreen extends StatelessWidget {
       }
 
       if (_isLoggedIn == true) {
+        sendData(user!.id);
+
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
             builder: (context) => const Home(),
