@@ -1,24 +1,56 @@
 import 'package:flutter/material.dart';
+import 'package:medorant/pages/camera_screen.dart';
 import 'package:medorant/utils/themes.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
-class Home extends StatelessWidget {
+import '../widgets/drawer.dart';
+
+class Home extends StatefulWidget {
   const Home({Key? key}) : super(key: key);
 
   @override
+  State<Home> createState() => _HomeState();
+}
+
+class _HomeState extends State<Home> {
+  @override
   Widget build(BuildContext context) {
+    // ignore: non_constant_identifier_names
+    final ID = ModalRoute.of(context)!.settings.arguments;
+
+    var name = '';
+    var email = '';
+    var img1 = '';
+
+    getDetails() async {
+      var data = await http.get(Uri.parse(
+          'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/114922385253239400010'));
+      var details = jsonDecode(data.body.substring(1, data.body.length - 1));
+      print(details['name']);
+      name = details['name'];
+      email = details['email'];
+      img1 = details['img'];
+      setState(() {});
+    }
+
+    getDetails();
+
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(context),
       home: Scaffold(
+        appBar: AppBar(title: const Text('Medorant')),
+        drawer: const AppDrawer(),
         body: Column(
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             const SizedBox(
-              height: 60,
+              height: 30,
             ),
             ListTile(
-              leading: const CircleAvatar(
-                backgroundImage: AssetImage('assets/images/img1.jpg'),
+              leading: CircleAvatar(
+                backgroundImage: NetworkImage(img1),
                 radius: 30,
               ),
               title: Text(
@@ -28,7 +60,7 @@ class Home extends StatelessWidget {
                     fontWeight: FontWeight.bold,
                     fontSize: 18),
               ),
-              subtitle: const Text('Roshan Kumar'),
+              subtitle: Text(name),
               trailing: const Text('224'),
             ),
             const SizedBox(
@@ -66,7 +98,16 @@ class Home extends StatelessWidget {
             const SizedBox(
               height: 20,
             ),
-            Image.asset('assets/images/Search.png')
+            InkWell(
+              child: Image.asset('assets/images/Search.png'),
+              onTap: () {
+                Navigator.of(context).pushReplacement(
+                  MaterialPageRoute(
+                    builder: (context) => const CameraScreen(),
+                  ),
+                );
+              },
+            )
           ],
         ),
       ),

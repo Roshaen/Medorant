@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
-
-import '../Widgets/image_input.dart';
+import '../widgets/image_input.dart';
 
 class CameraScreen extends StatefulWidget {
   const CameraScreen({Key? key}) : super(key: key);

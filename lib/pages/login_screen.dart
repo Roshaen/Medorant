@@ -1,28 +1,74 @@
 import 'package:flutter/material.dart';
-import 'package:medorant/pages/first_screen.dart';
-
+import 'package:medorant/pages/home.dart';
+import 'package:http/http.dart' as http;
 import '../api/google_signin_api.dart';
+import 'login_personal_data.dart';
+import 'dart:convert';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   static const routeName = '/welcome-screen';
 
   const LoginScreen({Key? key}) : super(key: key);
 
   @override
+  State<LoginScreen> createState() => _LoginScreenState();
+}
+
+class _LoginScreenState extends State<LoginScreen> {
+  @override
   Widget build(BuildContext context) {
     var _isLoggedIn = false;
+
+    // ignore: non_constant_identifier_names
     Future SignIn() async {
       final user = await GoogleSignInApi.login();
+
+      Future<http.Response> sendData(String id) {
+        return http.post(
+          Uri.parse(
+              'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user'),
+          headers: <String, String>{
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(<String, String>{
+            "user_id": user!.id.toString(),
+            "name": user.displayName.toString(),
+            "email": user.email,
+            "image": user.photoUrl.toString()
+          }),
+        );
+      }
+
+      //getData
+
+      getDetails() async {
+        return await http.get(Uri.parse(
+            'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/114922385253239400010'));
+        // var details = jsonDecode(data.body.substring(1, data.body.length - 1));
+      }
+
       if (user == null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("Sign In Failed")));
       } else {
         _isLoggedIn = true;
       }
-      print(user);
+
       if (_isLoggedIn == true) {
+        sendData(user!.id);
+
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const FirstScreen()));
+          MaterialPageRoute(
+            builder: (context) => const Home(),
+            settings: RouteSettings(arguments: user.id),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => LoginEdit(),
+          ),
+        );
       }
     }
 
@@ -77,12 +123,10 @@ class LoginScreen extends StatelessWidget {
                             const EdgeInsets.only(top: 25, left: 24, right: 24),
                         child: RaisedButton(
                           onPressed: SignIn,
-                          // onPressed: () => Navigator.of(context)
-                          //     .pushNamed(LoginScreen.routeName),
                           elevation: 0,
                           color: Colors.indigo,
                           child: const Text(
-                            'Log In with Google',
+                            'Get Started',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,
