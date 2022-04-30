@@ -6,6 +6,8 @@ class Home extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // ignore: non_constant_identifier_names
+    final ID = ModalRoute.of(context)!.settings.arguments;
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       theme: AppTheme.lightTheme(context),

@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:medorant/pages/first_screen.dart';
+import 'package:medorant/pages/home.dart';
 
 import '../api/google_signin_api.dart';
+import 'login_personal_data.dart';
 
 class LoginScreen extends StatelessWidget {
   static const routeName = '/welcome-screen';
@@ -11,18 +12,36 @@ class LoginScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var _isLoggedIn = false;
+
+    // ignore: non_constant_identifier_names
     Future SignIn() async {
       final user = await GoogleSignInApi.login();
+      List<String> data = [
+        user!.id,
+        user.email,
+        user.displayName.toString(),
+        user.photoUrl.toString()
+      ];
       if (user == null) {
         ScaffoldMessenger.of(context)
             .showSnackBar(const SnackBar(content: Text("Sign In Failed")));
       } else {
         _isLoggedIn = true;
       }
-      print(user);
+
       if (_isLoggedIn == true) {
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => const FirstScreen()));
+          MaterialPageRoute(
+            builder: (context) => const Home(),
+            settings: RouteSettings(arguments: user.id),
+          ),
+        );
+      } else {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(
+            builder: (context) => LoginEdit(),
+          ),
+        );
       }
     }
 
@@ -77,12 +96,10 @@ class LoginScreen extends StatelessWidget {
                             const EdgeInsets.only(top: 25, left: 24, right: 24),
                         child: RaisedButton(
                           onPressed: SignIn,
-                          // onPressed: () => Navigator.of(context)
-                          //     .pushNamed(LoginScreen.routeName),
                           elevation: 0,
                           color: Colors.indigo,
                           child: const Text(
-                            'Log In with Google',
+                            'Get Started',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,

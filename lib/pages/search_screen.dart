@@ -1,7 +1,8 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, duplicate_ignore
 import 'package:flutter/material.dart';
+import 'package:medorant/utils/themes.dart';
 
-import '../Widgets/search_item.dart';
+import '../widgets/search_item.dart';
 
 class SearchScreen extends StatefulWidget {
   static const routeName = '/recent-searches';
@@ -325,34 +326,28 @@ class _SearchScreenState extends State<SearchScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 10),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 16, horizontal: 18),
-              child: Text(
-                "Recent Searches",
-                style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.w500,
-                    color: const Color.fromARGB(255, 112, 111, 229)),
-              ),
+        appBar: AppBar(
+          title: Text(
+            'Recent Search',
+            style: TextStyle(
+              color: AppTheme.lightTheme(context).primaryColor,
+              fontSize: 28,
             ),
-            Column(
-              children: medicines
-                  .map(
-                    (data) => SearchItem(
-                      medicineName: data['medicine_name'],
-                      price: data['mrp'],
-                    ),
-                  )
-                  .toList(),
-            ),
-          ],
+          ),
+          elevation: 0.0,
+          backgroundColor: Colors.transparent,
         ),
-      ),
-    );
+        body: SingleChildScrollView(
+          child: Column(
+            children: medicines
+                .map(
+                  (data) => SearchItem(
+                    medicineName: data['medicine_name'],
+                    price: data['mrp'],
+                  ),
+                )
+                .toList(),
+          ),
+        ));
   }
 }
