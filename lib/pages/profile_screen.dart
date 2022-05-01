@@ -1,85 +1,188 @@
 import 'package:flutter/material.dart';
-import 'package:medorant/widgets/drawer.dart';
+import 'package:medorant/pages/login_screen.dart';
 
-import '../utils/themes.dart';
+import '../api/google_signin_api.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          title: const Text('Profile'),
-        ),
-        drawer: AppDrawer(),
-        body: Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
+    return Scaffold(
+      body: Padding(
+        padding: const EdgeInsets.all(10),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             const SizedBox(
-              height: 10,
+              height: 60,
             ),
             ListTile(
               leading: const CircleAvatar(
                 backgroundImage: AssetImage('assets/images/img1.jpg'),
                 radius: 30,
               ),
-              title: Text(
-                'Welcome Back 👋',
+              title: const Text(
+                'Roshan Kumar',
                 style: TextStyle(
-                    color: AppTheme.lightTheme(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                    color: Color.fromARGB(255, 112, 111, 229), fontSize: 18),
               ),
-              subtitle: const Text('Roshan Kumar'),
-              trailing: ElevatedButton(
+              subtitle: const Text('Roshan'),
+              trailing: RaisedButton(
                 onPressed: () {},
-                child: const Text('Edit'),
+                color: const Color.fromARGB(255, 112, 111, 229),
+                child: const Text(
+                  'Edit',
+                  style: TextStyle(fontSize: 18, color: Colors.white),
+                ),
               ),
             ),
             const SizedBox(
-              height: 20,
-            ),
-            Text(
-              'Details',
-              style: TextStyle(
-                  color: AppTheme.lightTheme(context).primaryColor,
-                  fontSize: 28),
-            ),
-            const SizedBox(
-              height: 20,
+              height: 40,
             ),
             Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 15),
-              child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Flexible(
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 164, 203, 234),
-                          borderRadius: BorderRadius.circular(10),
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    'Details',
+                    style: TextStyle(
+                        color: Color.fromARGB(255, 112, 111, 229),
+                        fontSize: 22),
+                  ),
+                  const SizedBox(height: 20),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          height: 70,
+                          width: 60,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 215, 215, 236),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(6))),
+                          child: Column(children: const [
+                            Text(
+                              'Age',
+                            ),
+                            Text(
+                              '21',
+                            ),
+                          ]),
                         ),
                       ),
-                    ),
-                    const SizedBox(
-                      width: 10,
-                    ),
-                    Flexible(
-                      child: Container(
-                        height: 100,
-                        decoration: BoxDecoration(
-                          color: const Color.fromARGB(255, 164, 203, 234),
-                          borderRadius: BorderRadius.circular(10),
+                      const SizedBox(width: 10),
+                      Expanded(
+                        child: Container(
+                          padding: const EdgeInsets.all(15),
+                          height: 70,
+                          width: 60,
+                          decoration: const BoxDecoration(
+                              color: Color.fromARGB(255, 215, 215, 236),
+                              borderRadius:
+                                  BorderRadius.all(Radius.circular(6))),
+                          child: Column(children: const [
+                            Text(
+                              'Age',
+                            ),
+                            Text(
+                              '21',
+                            ),
+                          ]),
                         ),
                       ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  Column(children: [
+                    Container(
+                      padding: const EdgeInsets.all(15),
+                      width: double.infinity,
+                      decoration: const BoxDecoration(
+                          color: Color.fromARGB(255, 215, 215, 236),
+                          borderRadius: BorderRadius.all(Radius.circular(6))),
+                      child: Column(children: const [
+                        Text(
+                          'Disease',
+                        ),
+                        Text(
+                          'Diabetes',
+                        ),
+                        Text(
+                          'Diabetes',
+                        ),
+                        Text(
+                          'Diabetes',
+                        ),
+                      ]),
                     ),
                   ]),
-            ),
-            const SizedBox(
-              height: 20,
+                  const SizedBox(height: 10),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Container(
+                        padding: const EdgeInsets.all(15),
+                        width: double.infinity,
+                        decoration: const BoxDecoration(
+                            color: Color.fromARGB(255, 215, 215, 236),
+                            borderRadius: BorderRadius.all(Radius.circular(6))),
+                        child: Column(children: const [
+                          Text(
+                            'Disease',
+                            textAlign: TextAlign.left,
+                          ),
+                          Text(
+                            'Diabetes',
+                          ),
+                          Text(
+                            'Diabetes',
+                          ),
+                          Text(
+                            'Diabetes',
+                          ),
+                        ]),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(
+                    height: 40,
+                  ),
+                  SizedBox(
+                    height: 40,
+                    width: double.infinity,
+                    child: RaisedButton(
+                      onPressed: () async {
+                        await GoogleSignInApi.logout();
+                        Navigator.of(context).pushReplacement(MaterialPageRoute(
+                            builder: (context) => const LoginScreen()));
+                      },
+                      elevation: 0,
+                      color: Colors.red,
+                      child: const Text(
+                        'Log Out',
+                        style: TextStyle(
+                          fontSize: 16,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: FlatButton(
+                      child: const Text(
+                        'Give us feedback',
+                        style: TextStyle(
+                            color: Color.fromARGB(255, 112, 111, 229)),
+                      ),
+                      onPressed: () {},
+                    ),
+                  )
+                ],
+              ),
             )
           ],
         ),

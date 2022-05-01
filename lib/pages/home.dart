@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:medorant/pages/camera_screen.dart';
+import 'package:medorant/pages/text_scan.dart';
 import 'package:medorant/utils/themes.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
@@ -7,34 +7,37 @@ import 'dart:convert';
 import '../widgets/drawer.dart';
 
 class Home extends StatefulWidget {
-  const Home({Key? key}) : super(key: key);
+  const Home({
+    Key? key,
+  }) : super(key: key);
 
   @override
   State<Home> createState() => _HomeState();
 }
 
 class _HomeState extends State<Home> {
+  var name = '';
+  var email = '';
+  var img1 =
+      'https://cdn.pixabay.com/photo/2015/10/05/22/37/blank-profile-picture-973460_960_720.png';
+
   @override
   Widget build(BuildContext context) {
-    // ignore: non_constant_identifier_names
-    final ID = ModalRoute.of(context)!.settings.arguments;
+    final ID = ModalRoute.of(context)!.settings.arguments as String;
 
-    var name = '';
-    var email = '';
-    var img1 = '';
-
-    getDetails() async {
+    getDetails(String id) async {
       var data = await http.get(Uri.parse(
-          'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/114922385253239400010'));
+          'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/${id}'));
       var details = jsonDecode(data.body.substring(1, data.body.length - 1));
-      print(details['name']);
+
       name = details['name'];
       email = details['email'];
-      img1 = details['img'];
+      img1 = details['image'];
+      // print(details['img']);
       setState(() {});
     }
 
-    getDetails();
+    getDetails(ID);
 
     return MaterialApp(
       debugShowCheckedModeBanner: false,
@@ -56,9 +59,10 @@ class _HomeState extends State<Home> {
               title: Text(
                 'Welcome Back 👋',
                 style: TextStyle(
-                    color: AppTheme.lightTheme(context).primaryColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18),
+                  color: AppTheme.lightTheme(context).primaryColor,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
               ),
               subtitle: Text(name),
               trailing: const Text('224'),
@@ -101,10 +105,10 @@ class _HomeState extends State<Home> {
             InkWell(
               child: Image.asset('assets/images/Search.png'),
               onTap: () {
-                Navigator.of(context).pushReplacement(
+                Navigator.of(context).push(
                   MaterialPageRoute(
-                    builder: (context) => const CameraScreen(),
-                  ),
+                      builder: (context) => const Scan(),
+                      settings: RouteSettings(arguments: ID)),
                 );
               },
             )

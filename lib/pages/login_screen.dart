@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:medorant/pages/home.dart';
 import 'package:http/http.dart' as http;
+import 'package:medorant/pages/home.dart';
+import 'package:medorant/utils/themes.dart';
 import '../api/google_signin_api.dart';
 import 'login_personal_data.dart';
 import 'dart:convert';
@@ -23,29 +24,55 @@ class _LoginScreenState extends State<LoginScreen> {
     Future SignIn() async {
       final user = await GoogleSignInApi.login();
 
-      Future<http.Response> sendData(String id) {
-        return http.post(
-          Uri.parse(
-              'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user'),
-          headers: <String, String>{
-            'Content-Type': 'application/json',
-          },
-          body: jsonEncode(<String, String>{
-            "user_id": user!.id.toString(),
-            "name": user.displayName.toString(),
-            "email": user.email,
-            "image": user.photoUrl.toString()
-          }),
-        );
+      sendData(String id) async {
+        try {
+          final response = await http.get(Uri.parse(
+              'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/$id'));
+          final getResponse = json.decode(response.body);
+          if (getResponse.length == 0) {
+            await http.post(
+              Uri.parse(
+                  'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user'),
+              headers: <String, String>{
+                'Content-Type': 'application/json',
+              },
+              body: jsonEncode({
+                "user_id": user!.id.toString(),
+                "favourites": [],
+                "disease": [],
+                "recent_searches": [],
+                "searches": 0,
+                "gender": '',
+                "age": null,
+                "name": user.displayName.toString(),
+                "email": user.email,
+                "image": user.photoUrl.toString()
+              }),
+            );
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const LoginEdit(),
+              ),
+            );
+          } else {
+            Navigator.of(context).pushReplacement(
+              MaterialPageRoute(
+                builder: (context) => const Home(),
+                settings: RouteSettings(arguments: [
+                  user?.id,
+                  user?.photoUrl,
+                  user?.displayName,
+                  user?.email
+                ]),
+              ),
+            );
+          }
+        } catch (e) {
+          print(e);
+        }
       }
 
       //getData
-
-      getDetails() async {
-        return await http.get(Uri.parse(
-            'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/114922385253239400010'));
-        // var details = jsonDecode(data.body.substring(1, data.body.length - 1));
-      }
 
       if (user == null) {
         ScaffoldMessenger.of(context)
@@ -55,18 +82,19 @@ class _LoginScreenState extends State<LoginScreen> {
       }
 
       if (_isLoggedIn == true) {
-        sendData(user!.id);
+        print(user!.id);
+        sendData(user.id);
 
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => const Home(),
+            builder: (context) => const LoginEdit(),
             settings: RouteSettings(arguments: user.id),
           ),
         );
       } else {
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (context) => LoginEdit(),
+            builder: (context) => const LoginScreen(),
           ),
         );
       }
@@ -74,6 +102,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
     return Scaffold(
       body: Container(
+        height: double.infinity,
         decoration: const BoxDecoration(
           image: DecorationImage(
             image: AssetImage('assets/images/login bg.png'),
@@ -95,9 +124,11 @@ class _LoginScreenState extends State<LoginScreen> {
                           'Welcome',
                           style: TextStyle(
                               fontSize: 30,
-                              fontStyle: FontStyle.italic,
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 112, 111, 229)),
+                        ),
+                        const SizedBox(
+                          height: 1,
                         ),
                         const Text(
                           'Medorant',
@@ -106,7 +137,7 @@ class _LoginScreenState extends State<LoginScreen> {
                               fontWeight: FontWeight.bold,
                               color: Color.fromARGB(255, 15, 15, 15)),
                         ),
-                        const SizedBox(height: 170),
+                        const SizedBox(height: 20),
                       ],
                     ),
                   ),
@@ -121,12 +152,13 @@ class _LoginScreenState extends State<LoginScreen> {
                         width: double.infinity,
                         padding:
                             const EdgeInsets.only(top: 25, left: 24, right: 24),
-                        child: RaisedButton(
+                        child: ElevatedButton(
                           onPressed: SignIn,
-                          elevation: 0,
-                          color: Colors.indigo,
+                          style: ElevatedButton.styleFrom(
+                              primary:
+                                  AppTheme.lightTheme(context).primaryColor),
                           child: const Text(
-                            'Get Started',
+                            'Login with Google',
                             style: TextStyle(
                               fontSize: 20,
                               fontWeight: FontWeight.w700,

@@ -1,7 +1,11 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:medorant/utils/themes.dart';
+import 'package:http/http.dart' as http;
 
 import '../widgets/disease_tag.dart';
+import 'home.dart';
 
 class LoginDisease extends StatefulWidget {
   const LoginDisease({Key? key}) : super(key: key);
@@ -11,7 +15,58 @@ class LoginDisease extends StatefulWidget {
 }
 
 class _LoginDiseaseState extends State<LoginDisease> {
-  final tags = <String>['Cancer', 'Periods'];
+  final tags = <String>[];
+
+  final diseases = [
+    "Vomiting",
+    "Nausea",
+    "Cough",
+    "Headache",
+    "Erythema",
+    "Rash",
+    "hives",
+    "Skin peeling",
+    "Dry skin",
+    "Fever",
+    "Abdominal pain",
+    "Acne",
+    "Stomach pain",
+    "Infection",
+    "Diabetes",
+    "Thyroid",
+    "Coeliac",
+    "Tuberculosis",
+    "Diarrhea",
+    "Aids",
+    "Piles",
+    "Sugar",
+    "Constipation"
+  ];
+  Future<http.Response> sendData(String id) async {
+    final response = await http.get(Uri.parse(
+        'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user/$id'));
+    final getResponse = json.decode(response.body);
+    return http.post(
+      Uri.parse(
+          'https://8g34ra4qq2.execute-api.ap-south-1.amazonaws.com/dev/user'),
+      headers: <String, String>{
+        'Content-Type': 'application/json',
+      },
+      body: jsonEncode({
+        "user_id": id,
+        "image": getResponse[0]['image'],
+        "favourites": [],
+        "disease": tags,
+        "recent_searches": [],
+        "searches": 0,
+        "email": getResponse[0]['email'],
+        "name": getResponse[0]['name'],
+        "gender": getResponse[0]['gender'],
+        "age": getResponse[0]['age'],
+      }),
+    );
+  }
+
   final diseaseList = TextEditingController();
 
   void doSomething(value) {
@@ -26,6 +81,7 @@ class _LoginDiseaseState extends State<LoginDisease> {
 
   @override
   Widget build(BuildContext context) {
+    final args = ModalRoute.of(context)?.settings.arguments;
     return MaterialApp(
       home: Scaffold(
           body: SingleChildScrollView(
@@ -47,20 +103,34 @@ class _LoginDiseaseState extends State<LoginDisease> {
               const SizedBox(
                 height: 20,
               ),
-              TextFormField(
-                decoration: const InputDecoration(
-                  labelText: "Disease",
-                  border: OutlineInputBorder(),
-                ),
-                controller: diseaseList,
-                validator: (value) {
-                  if (value!.isEmpty) {
-                    return "Username cant be Empty";
-                  } else {
-                    return null;
-                  }
+              // TextFormField(
+              //   decoration: const InputDecoration(
+              //     labelText: "Disease",
+              //     border: OutlineInputBorder(),
+              //   ),
+              //   controller: diseaseList,
+              //   validator: (value) {
+              //     if (value!.isEmpty) {
+              //       return "Username cant be Empty";
+              //     } else {
+              //       return null;
+              //     }
+              //   },
+              //   onFieldSubmitted: doSomething,
+              // ),
+              DropdownButton<String>(
+                hint: const Text('Diseases'), // Not necessary for Option 1
+                items: diseases.map((String value) {
+                  return DropdownMenuItem<String>(
+                    value: value,
+                    child: Text(value),
+                  );
+                }).toList(),
+                onChanged: (val) {
+                  setState(() {
+                    doSomething(val);
+                  });
                 },
-                onFieldSubmitted: doSomething,
               ),
               const SizedBox(
                 height: 20,
@@ -93,7 +163,14 @@ class _LoginDiseaseState extends State<LoginDisease> {
                   style: ButtonStyle(
                       backgroundColor: MaterialStateProperty.all(
                           const Color.fromARGB(255, 148, 114, 232))),
-                  onPressed: () {},
+                  onPressed: () {
+                    sendData(args as String);
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                          builder: (context) => const Home(),
+                          settings: RouteSettings(arguments: args)),
+                    );
+                  },
                   child: const Text('Submit'),
                 ),
                 width: double.infinity,
